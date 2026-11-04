@@ -1,0 +1,43 @@
+{
+  "id": "./",
+  "name": "LagiButuh — Platform Layanan Lokal",
+  "short_name": "LagiButuh",
+  "description": "Pesan laundry dan depot air dari penyedia lokal di Batam, lacak penjemputan dan antar secara real-time.",
+  "lang": "id",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#96DE21",
+  "theme_color": "#1B60D5",
+  "categories": ["shopping", "business", "lifestyle"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/Icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/Icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/Icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/Icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
