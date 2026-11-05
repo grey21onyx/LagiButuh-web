@@ -3,7 +3,7 @@
 // Bump VERSION whenever the caching strategy changes: activate() drops every
 // lagibutuh-* cache that is not part of the new pair. The worker lives at
 // <base>/sw.js, so its scope — and BASE below — follows the deployed sub-path
-// (e.g. /LagiButuh-web/ on GitHub Pages) without hard-coding it.
+// (e.g. /LagiButuh/ on GitHub Pages) without hard-coding it.
 'use strict';
 
 const VERSION = 'v1';
