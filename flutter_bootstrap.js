@@ -4,6 +4,12 @@
 // file boots the engine without registering that stub and registers the app's
 // own offline worker (web/sw.js) once the page has loaded.
 //
+// It also owns the browser half of the in-app PWA experience. Two events have
+// no Flutter binding: `beforeinstallprompt` (the install button) and a service
+// worker that installed while a page was already open (the update banner).
+// Both are exposed on `window.lagiButuhPwa` and announced with a
+// `lagibutuh-pwa-state` event that lib/core/pwa listens to.
+//
 // The two brace tokens below are replaced by the build and must keep their
 // exact spelling — see
 // https://docs.flutter.dev/platform-integration/web/initialization
@@ -50,14 +56,122 @@ if (!window._flutter) {
 _flutter.buildConfig = {"engineRevision":"89c39edfdfae2949f6806e4a315c0c08522238b7","wasmHashes":{"canvaskit.wasm":"fbed517a43e82452404446683f00f2e876d835aed84410695759e67b6bb01cd3","chromium/canvaskit.wasm":"ae8ff1d858140f7b1300ced3fa89fb8c9dce0a400a0f4f1e11f6dcfb3315fdcf","skwasm.wasm":"e540fd5e8303b7b68ec2718cb49e9c421f8ade3075b15e02a7059a62654df9a1","skwasm_heavy.wasm":"565f5cc1cca6ab120f11934b105f01fec4b58b480c82e0889dca93af8e6f8635","webparagraph/canvaskit.wasm":"0ce1b05082efdc8529550e8a01f6ff0593972d55525035010e26f5600aa9f254","wimp.wasm":"e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c"},"builds":[{"compileTarget":"dart2wasm","renderer":"skwasm","mainWasmPath":"main.dart.wasm","jsSupportRuntimePath":"main.dart.mjs"},{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"}]};
 
 
+const pwaState = {
+  canInstall: false,
+  updateAvailable: false,
+  installed: false,
+};
+
+let installPrompt = null;
+let workerRegistration = null;
+
+function emitPwaState() {
+  window.dispatchEvent(
+    new CustomEvent('lagibutuh-pwa-state', { detail: { ...pwaState } }),
+  );
+}
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  // Handling the event suppresses Chrome's own mini info bar: the install
+  // button inside the app is the single entry point.
+  event.preventDefault();
+  installPrompt = event;
+  pwaState.canInstall = true;
+  emitPwaState();
+});
+
+window.addEventListener('appinstalled', () => {
+  installPrompt = null;
+  pwaState.canInstall = false;
+  pwaState.installed = true;
+  emitPwaState();
+});
+
+window.lagiButuhPwa = {
+  get canInstall() {
+    return pwaState.canInstall;
+  },
+  get updateAvailable() {
+    return pwaState.updateAvailable;
+  },
+  get installed() {
+    return pwaState.installed;
+  },
+  // Resolves to 'accepted', 'dismissed' or 'unavailable'.
+  install: async function () {
+    const prompt = installPrompt;
+    if (!prompt) return 'unavailable';
+    // The prompt is single-use; a dismissal cannot be replayed without a new
+    // beforeinstallprompt, so the button hides until the browser fires one.
+    installPrompt = null;
+    pwaState.canInstall = false;
+    emitPwaState();
+    prompt.prompt();
+    const choice = await prompt.userChoice;
+    return choice.outcome;
+  },
+  applyUpdate: function () {
+    const waiting = workerRegistration && workerRegistration.waiting;
+    if (!waiting) return;
+    // Reload only after the new worker controls the page; reloading first
+    // would boot the same old assets again.
+    navigator.serviceWorker.addEventListener(
+      'controllerchange',
+      function () {
+        window.location.reload();
+      },
+      { once: true },
+    );
+    waiting.postMessage({ type: 'SKIP_WAITING' });
+  },
+};
+
+function watchWorkerRegistration(registration) {
+  function noteInstalled(worker) {
+    if (worker.state !== 'installed') return;
+    // The very first install has no controller, so there is nothing to update.
+    if (!navigator.serviceWorker.controller) return;
+    pwaState.updateAvailable = true;
+    emitPwaState();
+  }
+
+  if (registration.waiting) noteInstalled(registration.waiting);
+  registration.addEventListener('updatefound', function () {
+    const installing = registration.installing;
+    if (!installing) return;
+    installing.addEventListener('statechange', function () {
+      noteInstalled(installing);
+    });
+  });
+}
+
+function registerOfflineWorker() {
+  // `updateViaCache: 'none'` keeps the HTTP cache from hiding a new sw.js, so
+  // the byte change a deploy makes is always noticed.
+  navigator.serviceWorker
+    .register('sw.js', { updateViaCache: 'none' })
+    .then(function (registration) {
+      workerRegistration = registration;
+      watchWorkerRegistration(registration);
+
+      // A tab can stay open for days. Re-check when it becomes visible so a
+      // deploy raises the update banner without a manual reload.
+      let lastCheck = 0;
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState !== 'visible') return;
+        const now = Date.now();
+        if (now - lastCheck < 60000) return;
+        lastCheck = now;
+        registration.update().catch(function () {});
+      });
+    })
+    .catch(function (error) {
+      console.warn('Service worker registration failed:', error);
+    });
+}
+
 _flutter.loader.load();
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // Relative to the document's <base>, so this stays inside /LagiButuh/ and
-    // the worker's default scope is the deployed sub-path.
-    navigator.serviceWorker.register('sw.js').catch((error) => {
-      console.warn('Service worker registration failed:', error);
-    });
-  });
+  window.addEventListener('load', registerOfflineWorker);
 }

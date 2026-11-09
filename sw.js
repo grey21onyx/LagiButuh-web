@@ -1,12 +1,17 @@
 // LagiButuh offline service worker.
 //
-// Bump VERSION whenever the caching strategy changes: activate() drops every
-// lagibutuh-* cache that is not part of the new pair. The worker lives at
-// <base>/sw.js, so its scope — and BASE below — follows the deployed sub-path
-// (e.g. /LagiButuh/ on GitHub Pages) without hard-coding it.
+// Bump STRATEGY whenever the caching strategy changes. BUILD_ID is stamped per
+// deploy by tool/stamp_web_build.mjs, so every build installs a new worker —
+// that is what raises the in-app "update available" banner while the old one
+// keeps serving the open page. activate() drops every lagibutuh-* cache that
+// is not part of the new pair. The worker lives at <base>/sw.js, so its scope —
+// and BASE below — follows the deployed sub-path (e.g. /LagiButuh/ on GitHub
+// Pages) without hard-coding it.
 'use strict';
 
-const VERSION = 'v1';
+const STRATEGY = 'v1';
+const BUILD_ID = '__LAGIBUTUH_BUILD_ID__';
+const VERSION = `${STRATEGY}-${BUILD_ID}`;
 const SHELL_CACHE = `lagibutuh-shell-${VERSION}`;
 const RUNTIME_CACHE = `lagibutuh-runtime-${VERSION}`;
 const CACHE_PREFIX = 'lagibutuh-';
@@ -33,6 +38,13 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(SHELL_CACHE).then((cache) => cache.addAll(SHELL_URLS)),
   );
+});
+
+// The page asks the waiting worker to take over only after the update banner's
+// "Muat ulang" tap. No automatic skipWaiting: swapping assets under a running
+// screen can break an in-flight write.
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
