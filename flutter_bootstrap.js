@@ -10,6 +10,13 @@
 // Both are exposed on `window.lagiButuhPwa` and announced with a
 // `lagibutuh-pwa-state` event that lib/core/pwa listens to.
 //
+// It also owns browser notifications for the open tab. Supabase Realtime hands
+// Dart the `notifications` row, and lib/core/notify asks this bridge to show
+// it — so an active or backgrounded tab gets a system notification without a
+// push server or a VAPID key. A click comes back as a
+// `lagibutuh-notification-click` event carrying the same ids the FCM payload
+// would.
+//
 // The two brace tokens below are replaced by the build and must keep their
 // exact spelling — see
 // https://docs.flutter.dev/platform-integration/web/initialization
@@ -53,7 +60,7 @@ addEventListener("message", eventListener);
 if (!window._flutter) {
   window._flutter = {};
 }
-_flutter.buildConfig = {"engineRevision":"89c39edfdfae2949f6806e4a315c0c08522238b7","wasmHashes":{"canvaskit.wasm":"fbed517a43e82452404446683f00f2e876d835aed84410695759e67b6bb01cd3","chromium/canvaskit.wasm":"ae8ff1d858140f7b1300ced3fa89fb8c9dce0a400a0f4f1e11f6dcfb3315fdcf","skwasm.wasm":"e540fd5e8303b7b68ec2718cb49e9c421f8ade3075b15e02a7059a62654df9a1","skwasm_heavy.wasm":"565f5cc1cca6ab120f11934b105f01fec4b58b480c82e0889dca93af8e6f8635","webparagraph/canvaskit.wasm":"0ce1b05082efdc8529550e8a01f6ff0593972d55525035010e26f5600aa9f254","wimp.wasm":"e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c","main.dart.wasm":"e6d4f39b432a9971fe882f281e202d44bbe3c6414bab55e1ffae2078465d77a1"},"builds":[{"compileTarget":"dart2wasm","renderer":"skwasm","mainWasmPath":"main.dart.wasm","jsSupportRuntimePath":"main.dart.mjs"},{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"}]};
+_flutter.buildConfig = {"engineRevision":"89c39edfdfae2949f6806e4a315c0c08522238b7","wasmHashes":{"canvaskit.wasm":"fbed517a43e82452404446683f00f2e876d835aed84410695759e67b6bb01cd3","chromium/canvaskit.wasm":"ae8ff1d858140f7b1300ced3fa89fb8c9dce0a400a0f4f1e11f6dcfb3315fdcf","skwasm.wasm":"e540fd5e8303b7b68ec2718cb49e9c421f8ade3075b15e02a7059a62654df9a1","skwasm_heavy.wasm":"565f5cc1cca6ab120f11934b105f01fec4b58b480c82e0889dca93af8e6f8635","webparagraph/canvaskit.wasm":"0ce1b05082efdc8529550e8a01f6ff0593972d55525035010e26f5600aa9f254","wimp.wasm":"e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c"},"builds":[{"compileTarget":"dart2wasm","renderer":"skwasm","mainWasmPath":"main.dart.wasm","jsSupportRuntimePath":"main.dart.mjs"},{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"}]};
 
 
 const pwaState = {
@@ -125,6 +132,98 @@ window.lagiButuhPwa = {
     waiting.postMessage({ type: 'SKIP_WAITING' });
   },
 };
+
+// ---------------------------------------------------------------------------
+// Browser notifications
+// ---------------------------------------------------------------------------
+
+function parseNotificationData(raw) {
+  try {
+    const parsed = JSON.parse(raw || '{}');
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function notifyOptions(body, tag, data) {
+  return {
+    body: body,
+    tag: tag,
+    data: data,
+    icon: 'icons/Icon-192.png',
+    badge: 'icons/Icon-192.png',
+  };
+}
+
+function emitNotificationClick(data) {
+  window.dispatchEvent(
+    new CustomEvent('lagibutuh-notification-click', { detail: data }),
+  );
+}
+
+function notificationsSupported() {
+  return typeof window.Notification !== 'undefined';
+}
+
+window.lagiButuhNotify = {
+  get supported() {
+    return notificationsSupported();
+  },
+  get permission() {
+    return notificationsSupported() ? Notification.permission : 'unsupported';
+  },
+  // Resolves to the permission the browser reports afterwards, so a dismissal
+  // and a refusal are both answers rather than errors.
+  request: function () {
+    if (!notificationsSupported()) return Promise.resolve('unsupported');
+    if (Notification.permission !== 'default') {
+      return Promise.resolve(Notification.permission);
+    }
+    try {
+      return Notification.requestPermission();
+    } catch (error) {
+      return Promise.resolve(Notification.permission);
+    }
+  },
+  show: function (title, body, tag, dataJson) {
+    if (!notificationsSupported() || Notification.permission !== 'granted') {
+      return;
+    }
+    const options = notifyOptions(body, tag, parseNotificationData(dataJson));
+    try {
+      // Desktop browsers let the page own the notification, which keeps the
+      // click handler here and the tab's Flutter state intact.
+      const note = new Notification(title, options);
+      note.onclick = function () {
+        window.focus();
+        note.close();
+        emitNotificationClick(options.data);
+      };
+      return;
+    } catch (error) {
+      // Mobile Chrome rejects `new Notification()`: a page must ask the
+      // service worker to display it instead.
+    }
+    if (!navigator.serviceWorker) return;
+    navigator.serviceWorker.ready
+      .then(function (registration) {
+        return registration.showNotification(title, options);
+      })
+      .catch(function () {});
+  },
+};
+
+// A notification the service worker displayed is clicked there; sw.js focuses
+// this tab and posts the payload back, so the Flutter side has one entry point
+// regardless of who drew the notification.
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', function (event) {
+    const message = event.data;
+    if (!message || message.type !== 'notification-click') return;
+    emitNotificationClick(message.data || {});
+  });
+}
 
 function watchWorkerRegistration(registration) {
   function noteInstalled(worker) {

@@ -47,6 +47,34 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
+// A browser notification the page could not construct itself (mobile Chrome)
+// is displayed through this worker, so its click lands here. The payload is
+// posted back to an existing tab instead of opening a cold one: the open tab
+// still holds the session and the screen the user was on, and Flutter routes
+// from there. Without a tab the app is simply opened at the splash.
+self.addEventListener('notificationclick', (event) => {
+  const data = event.notification.data || {};
+  event.notification.close();
+  event.waitUntil(
+    (async () => {
+      const scope = self.registration.scope;
+      const windows = await self.clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true,
+      });
+      const inScope = windows.filter((client) => client.url.startsWith(scope));
+      const target =
+        inScope.find((client) => client.focused) || inScope[0] || windows[0];
+      if (target) {
+        await target.focus();
+        target.postMessage({ type: 'notification-click', data });
+        return;
+      }
+      await self.clients.openWindow(scope);
+    })(),
+  );
+});
+
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {

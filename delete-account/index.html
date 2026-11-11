@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hapus Akun — LagiButuh</title>
+<meta name="description" content="Ajukan penghapusan akun LagiButuh tanpa memasang aplikasi." />
+<style>
+  :root {
+    --blue: #1d4ed8;
+    --blue-soft: #eff6ff;
+    --ink: #0f172a;
+    --muted: #5b6577;
+    --line: #dbe3ef;
+    --danger: #b42318;
+    --danger-soft: #fef3f2;
+    --ok: #067647;
+    --ok-soft: #ecfdf3;
+    --card: #ffffff;
+    --bg: #f6f8fc;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+  }
+  header {
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+  header .wrap { display: flex; align-items: center; gap: 12px; height: 68px; }
+  .mark {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--blue); color: #fff;
+    display: grid; place-items: center; font-weight: 700; font-size: 16px;
+  }
+  .brand { font-weight: 700; letter-spacing: -0.01em; }
+  main { padding: 32px 0 64px; }
+  h1 { font-size: 28px; line-height: 1.25; margin: 0 0 8px; letter-spacing: -0.02em; }
+  h2 { font-size: 18px; margin: 0 0 10px; }
+  p { margin: 0 0 12px; }
+  .lede { color: var(--muted); }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 20px; margin: 20px 0;
+  }
+  .card.warn { background: var(--danger-soft); border-color: #fecdca; }
+  .card.warn h2 { color: var(--danger); }
+  .card.ok { background: var(--ok-soft); border-color: #abefc6; }
+  .card.ok h2 { color: var(--ok); }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin: 6px 0; }
+  label { display: block; font-weight: 600; margin: 14px 0 6px; }
+  input, textarea {
+    width: 100%; padding: 12px 14px; font: inherit;
+    border: 1px solid var(--line); border-radius: 10px; background: #fff;
+  }
+  input:focus, textarea:focus { outline: 2px solid var(--blue-soft); border-color: var(--blue); }
+  button {
+    margin-top: 18px; width: 100%; padding: 14px;
+    font: inherit; font-weight: 700; color: #fff; background: var(--danger);
+    border: 0; border-radius: 10px; cursor: pointer;
+  }
+  button:disabled { opacity: 0.55; cursor: not-allowed; }
+  .hint { color: var(--muted); font-size: 14px; }
+  .status { margin-top: 14px; font-size: 15px; }
+  .status.error { color: var(--danger); }
+  .status.success { color: var(--ok); }
+  .hidden { display: none; }
+  footer { border-top: 1px solid var(--line); padding: 22px 0 40px; color: var(--muted); font-size: 14px; }
+  a { color: var(--blue); }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="mark">LB</div>
+    <div class="brand">LagiButuh</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Hapus akun LagiButuh</h1>
+  <p class="lede">
+    Halaman ini untuk pengguna aplikasi LagiButuh di Android. Kamu tidak perlu
+    memasang aplikasi untuk mengajukan penghapusan akun dan data pribadi.
+  </p>
+
+  <div class="card warn">
+    <h2>Penghapusan bersifat permanen</h2>
+    <p style="margin-bottom:0">
+      Setelah permintaan selesai, akun tidak dapat dipulihkan dan email yang
+      sama tidak bisa dipakai untuk masuk kembali. Permintaan dicatat dan
+      ditanggapi paling lambat <strong>3×24 jam</strong>.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Yang dihapus</h2>
+    <ul>
+      <li>Profil, foto, nomor telepon, dan alamat.</li>
+      <li>Chat, komplain, ulasan, dan poin loyalty.</li>
+      <li>Bukti pembayaran, bukti pengantaran, dan foto KTP/NIB.</li>
+      <li>Token perangkat, sehingga notifikasi berhenti.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Yang tetap disimpan</h2>
+    <p>
+      Pesanan dan pembayaran tetap tersimpan tanpa nama, nomor telepon, atau
+      foto, karena kewajiban pajak dan audit. Status verifikasi merchant juga
+      tersimpan tanpa dokumen KTP/NIB.
+    </p>
+    <p style="margin-bottom:0" class="hint">
+      Kalau kamu hanya ingin berhenti memakai aplikasi tanpa menghapus data,
+      cukup keluar dari akun di menu profil.
+    </p>
+  </div>
+
+  <div class="card" id="form-card">
+    <h2>Ajukan penghapusan</h2>
+    <p class="hint">
+      Masukkan email yang terdaftar di akun LagiButuh. Kami akan mencocokkannya
+      sebelum menghapus apa pun.
+    </p>
+    <form id="delete-form" novalidate>
+      <label for="email">Email akun</label>
+      <input id="email" name="email" type="email" autocomplete="email"
+             placeholder="nama@email.com" required />
+
+      <label for="note">Catatan (opsional)</label>
+      <textarea id="note" name="note" rows="3"
+                placeholder="Contoh: akun ini memakai nomor lama."></textarea>
+
+      <button id="submit" type="submit">Kirim permintaan</button>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+
+  <div class="card ok hidden" id="done-card">
+    <h2>Permintaan diterima</h2>
+    <p style="margin-bottom:0" id="done-text"></p>
+  </div>
+
+  <div class="card">
+    <h2>Butuh bantuan?</h2>
+    <p style="margin-bottom:0">
+      Kirim email ke
+      <a href="mailto:privasi@lagibutuh.com">privasi@lagibutuh.com</a>
+      dengan subjek “Hapus Akun”. Sertakan email akun yang ingin dihapus.
+    </p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    LagiButuh · <a href="mailto:privasi@lagibutuh.com">privasi@lagibutuh.com</a>
+  </div>
+</footer>
+
+<script>
+  // Deployment fills config.json next to this page:
+  //   { "supabaseUrl": "https://<ref>.supabase.co",
+  //     "publishableKey": "sb_publishable_..." }
+  // The publishable key is safe in a public page; RLS and the RPC decide what
+  // it may do. Never put the secret key here.
+  (function () {
+    var form = document.getElementById('delete-form');
+    var status = document.getElementById('status');
+    var button = document.getElementById('submit');
+    var formCard = document.getElementById('form-card');
+    var doneCard = document.getElementById('done-card');
+    var doneText = document.getElementById('done-text');
+    var config = null;
+
+    function setStatus(message, kind) {
+      status.textContent = message;
+      status.className = 'status' + (kind ? ' ' + kind : '');
+    }
+
+    fetch('config.json', { cache: 'no-store' })
+      .then(function (response) {
+        if (!response.ok) throw new Error('no config');
+        return response.json();
+      })
+      .then(function (json) {
+        if (!json || !json.supabaseUrl || !json.publishableKey) return;
+        config = json;
+      })
+      .catch(function () {
+        // The form still renders. Without config the email fallback below is
+        // the only path, which is honest rather than a broken submit button.
+        setStatus(
+          'Formulir online belum dikonfigurasi. Gunakan email di bagian ' +
+          '“Butuh bantuan?”.',
+          'error'
+        );
+        button.disabled = true;
+      });
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (!config) return;
+
+      var email = document.getElementById('email').value.trim();
+      var note = document.getElementById('note').value.trim();
+
+      if (!email || email.indexOf('@') < 1) {
+        setStatus('Masukkan email yang valid.', 'error');
+        return;
+      }
+
+      button.disabled = true;
+      setStatus('Mengirim permintaan…', '');
+
+      fetch(config.supabaseUrl + '/rest/v1/rpc/request_deletion_public', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: config.publishableKey,
+          Authorization: 'Bearer ' + config.publishableKey
+        },
+        body: JSON.stringify({ p_email: email, p_note: note || null })
+      })
+        .then(function (response) {
+          if (!response.ok) throw new Error('request failed');
+          return response.json();
+        })
+        .then(function () {
+          formCard.classList.add('hidden');
+          doneCard.classList.remove('hidden');
+          doneText.textContent =
+            'Permintaan untuk ' + email + ' sudah tercatat. Kami akan ' +
+            'menanggapi dalam 3×24 jam. Tidak perlu mengirim ulang.';
+        })
+        .catch(function () {
+          button.disabled = false;
+          setStatus(
+            'Permintaan gagal dikirim. Coba lagi, atau kirim email ke ' +
+            'privasi@lagibutuh.com.',
+            'error'
+          );
+        });
+    });
+  })();
+</script>
+</body>
+</html>
