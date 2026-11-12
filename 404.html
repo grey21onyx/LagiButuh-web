@@ -16,7 +16,11 @@
        Pages project reach this document, so the path is kept. */
     (function () {
       if (!/(^|\.)github\.io$/i.test(location.hostname)) return;
-      var origin = "https://lagibutuh.thedev.id";
+      /* Same auth-callback guard as index.html: a `?code=` exchange needs the
+         PKCE verifier stored on the origin that started it. */
+      if (/[?&](code|error)=/.test(location.search) ||
+          /(access_token|refresh_token|error)=/.test(location.hash)) return;
+      var origin = "https://lagibutuh.vercel.app";
       var path = location.pathname.replace(new RegExp("^/LagiButuh-web/?"), "");
       fetch(origin + "/version.json", { mode: "no-cors", cache: "no-store" })
         .then(function () {

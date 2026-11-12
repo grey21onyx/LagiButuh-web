@@ -8,16 +8,24 @@
     pinned base can only ever be right for one of the two hosts.
   -->
   <script>
-    /* The canonical host is https://lagibutuh.thedev.id (Vercel). The legacy
+    /* The canonical host is https://lagibutuh.vercel.app (Vercel). The legacy
        GitHub Pages project site at
        https://grey21onyx.github.io/LagiButuh-web/ probes it and forwards
        visitors there, keeping path, query and hash so deep links survive.
-       While the thedev.id record does not exist yet the probe fails and the
-       Pages copy keeps serving the app instead of sending people to a host
-       that does not answer. */
+       The probe still guards the redirect: if the canonical host ever stops
+       answering, the Pages copy keeps serving the app instead of sending
+       people to a host that is down. Auth works on both hosts, so a visitor
+       who stays on Pages is not stranded. */
     (function () {
       if (!/(^|\.)github\.io$/i.test(location.hostname)) return;
-      var origin = "https://lagibutuh.thedev.id";
+      /* Never forward an auth callback. GoTrue returns `?code=` (or a
+         `#access_token=` fragment) that is exchanged against a PKCE verifier
+         kept in *this* origin's storage; moving the page to another origin
+         would lose it and the exchange would fail. The app boots here instead,
+         signs in, and the next in-app navigation is on the canonical host. */
+      if (/[?&](code|error)=/.test(location.search) ||
+          /(access_token|refresh_token|error)=/.test(location.hash)) return;
+      var origin = "https://lagibutuh.vercel.app";
       var path = location.pathname.replace(new RegExp("^/LagiButuh-web/?"), "");
       fetch(origin + "/version.json", { mode: "no-cors", cache: "no-store" })
         .then(function () {
@@ -33,7 +41,7 @@
   <link rel="preload" href="main.dart.wasm" as="fetch" type="application/wasm" crossorigin="anonymous">
   <link rel="preload" href="canvaskit/skwasm.wasm" as="fetch" type="application/wasm" crossorigin="anonymous">
   <link rel="modulepreload" href="main.dart.mjs">
-  <link rel="canonical" href="https://lagibutuh.thedev.id/">
+  <link rel="canonical" href="https://lagibutuh.vercel.app/">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
