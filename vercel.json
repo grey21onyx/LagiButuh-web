@@ -291,5 +291,22 @@
         }
       ]
     }
+  ],
+  "routes": [
+    {
+      "src": "/probe-c.wasm",
+      "has": [
+        {
+          "type": "header",
+          "key": "Accept-Encoding",
+          "value": ".*br.*"
+        }
+      ],
+      "dest": "/probe-b.wasm.br",
+      "headers": {
+        "Content-Encoding": "br",
+        "Content-Type": "application/wasm"
+      }
+    }
   ]
 }
