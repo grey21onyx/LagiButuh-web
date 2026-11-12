@@ -31,6 +31,27 @@ so the canonical filenames must stay in place).
 Deleting the `routes` entry for a file reverts it to edge compression; nothing
 else depends on the `.br` siblings.
 
+## Cross-origin isolation
+
+`/` and `/index.html` carry `Cross-Origin-Opener-Policy: same-origin` and
+`Cross-Origin-Embedder-Policy: credentialless`. Together they make
+`crossOriginIsolated` true, which is what lets skwasm run its renderer on web
+workers and allocate its wasm memory as a `SharedArrayBuffer` instead of
+logging "Skwasm will run in single-threaded mode" and drawing on the main
+thread.
+
+`credentialless` rather than `require-corp`: the app renders public Supabase
+Storage images whose responses carry no `Cross-Origin-Resource-Policy`, and
+`require-corp` would block them. The cost is Safari, which does not implement
+`credentialless` — it simply stays non-isolated and single-threaded.
+`same-origin` (not `same-origin-allow-popups`) is required for isolation;
+Google sign-in survives it because `signInWithOAuth` navigates the current tab
+(`webOnlyWindowName: '_self'`) rather than opening a popup that needs
+`window.opener`.
+
+GitHub Pages cannot send headers, so that copy stays non-isolated and keeps
+rendering single-threaded.
+
 ## Domain
 
 `lagibutuh.thedev.id` is a free subdomain from
