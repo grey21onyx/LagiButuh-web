@@ -188,7 +188,9 @@
       "dest": "/main.dart.wasm.br",
       "headers": {
         "Content-Type": "application/wasm",
-        "Content-Encoding": "br"
+        "Content-Encoding": "br",
+        "Vary": "Accept-Encoding",
+        "Cache-Control": "public, max-age=0, must-revalidate"
       }
     },
     {
@@ -203,7 +205,9 @@
       "dest": "/canvaskit/skwasm.wasm.br",
       "headers": {
         "Content-Type": "application/wasm",
-        "Content-Encoding": "br"
+        "Content-Encoding": "br",
+        "Vary": "Accept-Encoding",
+        "Cache-Control": "public, max-age=604800, stale-while-revalidate=604800"
       }
     },
     {
@@ -218,7 +222,9 @@
       "dest": "/main.dart.js.br",
       "headers": {
         "Content-Type": "text/javascript; charset=utf-8",
-        "Content-Encoding": "br"
+        "Content-Encoding": "br",
+        "Vary": "Accept-Encoding",
+        "Cache-Control": "public, max-age=0, must-revalidate"
       }
     }
   ]
