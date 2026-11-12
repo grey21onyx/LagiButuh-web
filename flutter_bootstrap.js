@@ -60,7 +60,7 @@ addEventListener("message", eventListener);
 if (!window._flutter) {
   window._flutter = {};
 }
-_flutter.buildConfig = {"engineRevision":"89c39edfdfae2949f6806e4a315c0c08522238b7","wasmHashes":{"canvaskit.wasm":"fbed517a43e82452404446683f00f2e876d835aed84410695759e67b6bb01cd3","chromium/canvaskit.wasm":"ae8ff1d858140f7b1300ced3fa89fb8c9dce0a400a0f4f1e11f6dcfb3315fdcf","skwasm.wasm":"e540fd5e8303b7b68ec2718cb49e9c421f8ade3075b15e02a7059a62654df9a1","skwasm_heavy.wasm":"565f5cc1cca6ab120f11934b105f01fec4b58b480c82e0889dca93af8e6f8635","webparagraph/canvaskit.wasm":"0ce1b05082efdc8529550e8a01f6ff0593972d55525035010e26f5600aa9f254","wimp.wasm":"e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c"},"builds":[{"compileTarget":"dart2wasm","renderer":"skwasm","mainWasmPath":"main.dart.wasm","jsSupportRuntimePath":"main.dart.mjs"},{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"}]};
+_flutter.buildConfig = {"engineRevision":"89c39edfdfae2949f6806e4a315c0c08522238b7","wasmHashes":{"canvaskit.wasm":"fbed517a43e82452404446683f00f2e876d835aed84410695759e67b6bb01cd3","chromium/canvaskit.wasm":"ae8ff1d858140f7b1300ced3fa89fb8c9dce0a400a0f4f1e11f6dcfb3315fdcf","skwasm.wasm":"e540fd5e8303b7b68ec2718cb49e9c421f8ade3075b15e02a7059a62654df9a1","skwasm_heavy.wasm":"565f5cc1cca6ab120f11934b105f01fec4b58b480c82e0889dca93af8e6f8635","webparagraph/canvaskit.wasm":"0ce1b05082efdc8529550e8a01f6ff0593972d55525035010e26f5600aa9f254","wimp.wasm":"e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c","main.dart.wasm":"37076de3b07d23ddd1f008a7578b5b9022196940beb7433774e7ecfef22af460"},"builds":[{"compileTarget":"dart2wasm","renderer":"skwasm","mainWasmPath":"main.dart.wasm","jsSupportRuntimePath":"main.dart.mjs"},{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"}],"useLocalCanvasKit":true};
 
 
 const pwaState = {
@@ -151,8 +151,12 @@ function notifyOptions(body, tag, data) {
     body: body,
     tag: tag,
     data: data,
+    // The card artwork keeps the colour logo, but `badge` is the status-bar
+    // slot: Android renders it as an alpha mask tinted by the system, so a
+    // full-bleed colour image there paints a solid square instead of a
+    // silhouette. badge-96.png is the monochrome bell for exactly that slot.
     icon: 'icons/Icon-192.png',
-    badge: 'icons/Icon-192.png',
+    badge: 'icons/badge-96.png',
   };
 }
 
@@ -269,7 +273,54 @@ function registerOfflineWorker() {
     });
 }
 
-_flutter.loader.load();
+// The boot splash in index.html covers the engine download. Once the app has
+// started it fades out and is removed, so a slow first load shows progress
+// instead of an empty green page.
+_flutter.loader.load().then(function () {
+  const boot = document.getElementById('boot');
+  if (boot) {
+    boot.classList.add('boot-done');
+    setTimeout(function () {
+      boot.remove();
+    }, 300);
+  }
+  warmEngineCache();
+});
+
+// Hands the engine files this page actually loaded to the service worker, which
+// stores them in its build-versioned cache. The next visit then boots with no
+// network: without this the worker only sees a request once it already controls
+// the page, so the engine would be re-downloaded on every visit until a second
+// load happened to fill the cache.
+function warmEngineCache() {
+  if (!('serviceWorker' in navigator)) return;
+  const pattern =
+    /(?:^|\/)(?:flutter\.js|main\.dart\.(?:js|wasm|mjs)|canvaskit\/[^/]+)$/;
+  const urls = performance
+    .getEntriesByType('resource')
+    .map(function (entry) {
+      return entry.name;
+    })
+    .filter(function (url) {
+      return pattern.test(new URL(url).pathname);
+    });
+  if (!urls.length) return;
+
+  const send = function (worker) {
+    if (worker) worker.postMessage({ type: 'warm-engine', urls: urls });
+  };
+  // On a first visit the worker installs and claims the page while the engine
+  // is still loading, so it is often not the controller yet at this point.
+  // Waiting for it to activate is what makes the *second* load fast.
+  const controller = navigator.serviceWorker.controller;
+  if (controller) {
+    send(controller);
+    return;
+  }
+  navigator.serviceWorker.ready.then(function (registration) {
+    send(registration.active);
+  });
+}
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', registerOfflineWorker);

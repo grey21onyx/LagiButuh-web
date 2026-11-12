@@ -9,30 +9,48 @@
 // Pages) without hard-coding it.
 'use strict';
 
-const STRATEGY = 'v1';
-const BUILD_ID = '__LAGIBUTUH_BUILD_ID__';
+const STRATEGY = 'v2';
+const BUILD_ID = '10c6c0cfaf';
 const VERSION = `${STRATEGY}-${BUILD_ID}`;
 const SHELL_CACHE = `lagibutuh-shell-${VERSION}`;
 const RUNTIME_CACHE = `lagibutuh-runtime-${VERSION}`;
 const CACHE_PREFIX = 'lagibutuh-';
 const BASE = new URL(self.registration.scope).pathname;
 
-// Small shell only. The multi-megabyte engine and main.dart.js are filled in by
-// the runtime caches while the first visit loads them, which avoids
-// double-downloading the app on install.
+// Small shell, cached as one unit.
 const SHELL_URLS = [
   BASE,
   `${BASE}index.html`,
+  // The loader itself. Network-first for these would put a round trip in front
+  // of the engine download and leave an offline visit with no bootstrapper at
+  // all; they change only when the build does, and the shell cache is versioned
+  // by BUILD_ID.
+  `${BASE}flutter_bootstrap.js`,
+  `${BASE}flutter.js`,
+  `${BASE}version.json`,
   `${BASE}manifest.json`,
   `${BASE}favicon.png`,
   `${BASE}icons/Icon-192.png`,
   `${BASE}icons/Icon-512.png`,
+  // The status-bar badge a worker-displayed notification needs; without it
+  // precached an offline notification falls back to a bare square.
+  `${BASE}icons/badge-96.png`,
 ];
 
 // Images and fonts never change bytes under the same URL in a build, so they
-// can be served from cache and refreshed in the background. Code and JSON go
-// through the network first so a new deploy is picked up on the next launch.
+// can be served from cache and refreshed in the background. Small code and JSON
+// go through the network first so a new deploy is picked up on the next launch.
 const IMMUTABLE_ASSET = /\.(png|jpe?g|gif|svg|webp|ico|woff2?|ttf|otf)$/i;
+
+// The engine and the app bundle: multi-megabyte, and byte-identical for a given
+// build. These are cache-first, not network-first. The cache name carries the
+// BUILD_ID, so a new deploy writes a new cache and a cached engine can never be
+// stale — while re-downloading main.dart.wasm on every visit is what made a
+// warm boot as slow as a cold one. `.symbols` files are build tooling, never
+// fetched by the app, and must not be pulled into the cache.
+const ENGINE_ASSET =
+  /(?:^|\/)(?:flutter_bootstrap\.js|flutter\.js|version\.json|main\.dart\.(?:js|wasm|mjs)|canvaskit\/[^/]+)$/;
+const SYMBOLS_ASSET = /\.symbols$/;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -44,7 +62,11 @@ self.addEventListener('install', (event) => {
 // "Muat ulang" tap. No automatic skipWaiting: swapping assets under a running
 // screen can break an in-flight write.
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+  const message = event.data || {};
+  if (message.type === 'SKIP_WAITING') self.skipWaiting();
+  if (message.type === 'warm-engine' && Array.isArray(message.urls)) {
+    event.waitUntil(warmEngine(message.urls.slice(0, 20)));
+  }
 });
 
 // A browser notification the page could not construct itself (mobile Chrome)
@@ -103,12 +125,57 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  if (SYMBOLS_ASSET.test(url.pathname)) return;
+
   event.respondWith(
-    IMMUTABLE_ASSET.test(url.pathname)
+    ENGINE_ASSET.test(url.pathname)
+      ? cacheFirst(request, RUNTIME_CACHE)
+      : IMMUTABLE_ASSET.test(url.pathname)
       ? staleWhileRevalidate(request, RUNTIME_CACHE)
       : networkFirst(request, RUNTIME_CACHE),
   );
 });
+
+// The page reports the engine files it actually loaded, right after the app
+// starts, and the worker stores exactly those. Install-time precaching cannot do
+// this: a build ships both the wasm engine and the JS fallback plus the whole
+// canvaskit directory (~16 MB), and only a few of those files are ever fetched.
+// Every reported URL was just downloaded, so warming is an HTTP-cache read, not
+// a second download — and the very next visit is served entirely from Cache
+// Storage, offline included.
+async function warmEngine(urls) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  await Promise.all(
+    urls.map(async (url) => {
+      try {
+        if (!url.startsWith(self.registration.scope)) return;
+        if (await cache.match(url)) return;
+        const response = await fetch(url);
+        if (!response.ok) return;
+        const type = response.headers.get('content-type') || '';
+        const expected = url.endsWith('.wasm') ? /wasm/ : /javascript/;
+        if (!expected.test(type)) return;
+        await cache.put(url, response);
+      } catch (error) {
+        // A revoked file or a dropped connection: cacheFirst retries on demand.
+      }
+    }),
+  );
+}
+
+// Serve a build asset straight from Cache Storage once this build has stored
+// it; no revalidation, no network. A build that did not cache the file yet
+// (the first visit of a deploy) fetches and stores it.
+async function cacheFirst(request, cacheName) {
+  // Precache and runtime entries live in different caches (the loader is part
+  // of the shell), so look across both.
+  const cached = await caches.match(request);
+  if (cached) return cached;
+  const cache = await caches.open(cacheName);
+  const response = await fetch(request);
+  if (response && response.ok) await cache.put(request, response.clone());
+  return response;
+}
 
 async function networkFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
