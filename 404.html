@@ -2,31 +2,20 @@
 <html lang="id">
 <head>
   <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    `flutter build web --base-href=/LagiButuh/` fills this in for the GitHub
-    Pages project site; the value is rewritten at build time.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+    Served from the domain root on Vercel and from the /LagiButuh-web/
+    project sub-path on GitHub Pages. Relative URLs resolve against the
+    document URL, so no <base href> is pinned here.
   -->
-  <base href="/">
   <script>
     /* Two hosts serve this bundle: Vercel (canonical, at the domain root) and
        the GitHub Pages project site at
-       https://grey21onyx.github.io/LagiButuh-web/ . On Pages the legacy
-       sub-path becomes the base href, and once https://lagibutuh.thedev.id
+       https://grey21onyx.github.io/LagiButuh-web/ . Relative URLs resolve against
+       the document URL on both, and once https://lagibutuh.thedev.id
        answers, visitors are forwarded there with path, query and hash kept so
        deep links survive. While the thedev.id record does not exist yet the
        Pages copy keeps working instead of sending people to a dead host. */
     (function () {
       if (!/(^|\.)github\.io$/i.test(location.hostname)) return;
-      var base = document.querySelector("base");
-      if (base) base.setAttribute("href", "/LagiButuh-web/");
       var origin = "https://lagibutuh.thedev.id";
       var path = location.pathname.replace(new RegExp("^/LagiButuh-web/?"), "");
       fetch(origin + "/version.json", { mode: "no-cors", cache: "no-store" })
