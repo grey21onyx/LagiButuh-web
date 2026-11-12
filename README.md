@@ -20,11 +20,16 @@ files. No build step runs on Vercel — the checked-in bundle is the release.
 The CDN's on-the-fly brotli is low quality: the 4.0 MB dart2wasm module leaves
 the edge as ~1.55 MB, while `brotli -q 11` makes it ~1.17 MB. The release
 therefore ships `main.dart.wasm.br`, `canvaskit/skwasm.wasm.br` and
-`main.dart.js.br` beside the plain files, and `vercel.json` rewrites requests
-that advertise `br` onto them, with `Content-Type`, `Content-Encoding: br` and
-`Vary: Accept-Encoding` set on those paths. Clients without brotli still get the
-plain files. If Vercel ever starts honouring precompressed siblings itself (or
-raises its quality), the rewrite rules are the part to delete.
+`main.dart.js.br` beside the plain files, and `vercel.json` delivers them
+through `routes` — the legacy routing list, which is evaluated *before* the
+filesystem check, unlike `rewrites`. A request that advertises `br` is served
+the sibling with `Content-Type`, `Content-Encoding: br`, `Vary: Accept-Encoding`
+and the same `Cache-Control` the plain file gets; every other client still gets
+the plain file, which is also what GitHub Pages serves (Pages has no rewrites,
+so the canonical filenames must stay in place).
+
+Deleting the `routes` entry for a file reverts it to edge compression; nothing
+else depends on the `.br` siblings.
 
 ## Domain
 
