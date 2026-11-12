@@ -14,9 +14,24 @@
     For more details:
     * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
   -->
-  <base href="/LagiButuh-web/">
+  <base href="/">
 
   <meta charset="UTF-8">
+  <!-- Legacy GitHub Pages URL -> canonical production origin on Vercel.
+       This same build is served at
+       https://grey21onyx.github.io/LagiButuh-web/ , so visitors landing on
+       github.io are forwarded to the Vercel domain. Path, query and hash are
+       preserved so deep links keep working. -->
+  <script>
+    (function () {
+      if (/(^|\.)github\.io$/i.test(location.hostname)) {
+        var path = location.pathname.replace(new RegExp("^/LagiButuh-web/?"), "");
+        location.replace("https://lagibutuh.thedev.id/" + path + location.search + location.hash);
+      }
+    })();
+  </script>
+  <link rel="canonical" href="https://lagibutuh.thedev.id/">
+
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
 
   <title>LagiButuh — Platform Layanan Lokal untuk Kebutuhanmu</title>
