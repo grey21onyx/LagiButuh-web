@@ -20,6 +20,14 @@ be added to the Supabase redirect allow list before auth links may return there.
 workers, `main.dart*`, `version.json`); everything else is served as static
 files. No build step runs on Vercel — the checked-in bundle is the release.
 
+`/version.json` also carries `Access-Control-Allow-Origin: *`. That is what the
+Pages shell's health probe reads: it forwards to the canonical host only when
+that file answers **2xx** with `app_name: "lagibutuh"`. A 5xx, a Vercel outage
+page, a parked host or a dead network leaves the visitor on GitHub Pages, whose
+build is complete and whose origin is in the Supabase redirect allow list, so
+sign-in still works there. Without the CORS header the probe cannot read the
+response and never forwards.
+
 ## Precompressed engine
 
 The CDN's on-the-fly brotli is low quality: the 4.0 MB dart2wasm module leaves
