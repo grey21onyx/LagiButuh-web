@@ -11,10 +11,20 @@ static bundle from the repository root.
 | Vercel (default) | https://lagibutuh.vercel.app | Same deployment, Vercel's own domain |
 | GitHub Pages (legacy) | https://grey21onyx.github.io/LagiButuh-web/ | Kept alive, forwards to the canonical domain |
 
-`vercel.json` only sets cache headers for the entrypoints (`index.html`, the
-service workers, `main.dart*`, `version.json`); everything else is served as
-static files. No build step runs on Vercel — the checked-in bundle is the
-release.
+`vercel.json` sets cache headers for the entrypoints (`index.html`, the service
+workers, `main.dart*`, `version.json`); everything else is served as static
+files. No build step runs on Vercel — the checked-in bundle is the release.
+
+## Precompressed engine
+
+The CDN's on-the-fly brotli is low quality: the 4.0 MB dart2wasm module leaves
+the edge as ~1.55 MB, while `brotli -q 11` makes it ~1.17 MB. The release
+therefore ships `main.dart.wasm.br`, `canvaskit/skwasm.wasm.br` and
+`main.dart.js.br` beside the plain files, and `vercel.json` rewrites requests
+that advertise `br` onto them, with `Content-Type`, `Content-Encoding: br` and
+`Vary: Accept-Encoding` set on those paths. Clients without brotli still get the
+plain files. If Vercel ever starts honouring precompressed siblings itself (or
+raises its quality), the rewrite rules are the part to delete.
 
 ## Domain
 
@@ -36,13 +46,16 @@ serving the app instead of redirecting to a dead host.
 The Flutter source lives in the `nossilleen/LagiButuh` repository. Its
 `Deploy web release` workflow builds the bundle and publishes it here:
 
-1. `flutter build web --release --wasm --dart-define-from-file=env/ci.json`
+1. `pwsh tool/build_web.ps1` — `flutter build web --release --wasm -O4
+   --no-web-resources-cdn`, then `tool/stamp_web_build.mjs` (service-worker
+   build id) and `tool/precompress_web.mjs` (the `.br` siblings above)
 2. replace everything in this repository except `.git`, `.github`,
    `README.md`, `vercel.json` and `.nojekyll` with `build/web/`
 3. commit and push to `main`, which is the commit Vercel deploys
 
-The workflow needs `WEB_DEPLOY_TOKEN` (a fine-grained token with write access
-to this repository) plus the Supabase build defines as repository secrets.
+The workflow needs `WEB_DEPLOY_KEY` (the private half of a deploy key with
+write access to this repository) plus `BUILD_ENV_JSON` (the contents of
+`env/dev.json`) as repository secrets.
 
 To publish by hand, run the same build in the app repository and copy
 `build/web/` over this repository's root, keeping the files listed above.

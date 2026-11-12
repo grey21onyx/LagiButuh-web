@@ -1,5 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/main.dart.wasm",
+      "has": [{ "type": "header", "key": "Accept-Encoding", "value": ".*br.*" }],
+      "destination": "/main.dart.wasm.br"
+    },
+    {
+      "source": "/canvaskit/skwasm.wasm",
+      "has": [{ "type": "header", "key": "Accept-Encoding", "value": ".*br.*" }],
+      "destination": "/canvaskit/skwasm.wasm.br"
+    },
+    {
+      "source": "/main.dart.js",
+      "has": [{ "type": "header", "key": "Accept-Encoding", "value": ".*br.*" }],
+      "destination": "/main.dart.js.br"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -84,6 +101,30 @@
     {
       "source": "/favicon.png",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }]
+    },
+    {
+      "source": "/main.dart.wasm.br",
+      "headers": [
+        { "key": "Content-Type", "value": "application/wasm" },
+        { "key": "Content-Encoding", "value": "br" },
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/canvaskit/skwasm.wasm.br",
+      "headers": [
+        { "key": "Content-Type", "value": "application/wasm" },
+        { "key": "Content-Encoding", "value": "br" },
+        { "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/main.dart.js.br",
+      "headers": [
+        { "key": "Content-Type", "value": "text/javascript; charset=utf-8" },
+        { "key": "Content-Encoding", "value": "br" },
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
     }
   ]
 }
