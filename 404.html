@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <!--
-    Served from the domain root on Vercel and from the /LagiButuh-web/
-    project sub-path on GitHub Pages. Relative URLs resolve against the
-    document URL, so no <base href> is pinned here.
-  -->
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Halaman tidak ditemukan — LagiButuh</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#1B60D5">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+
   <script>
-    /* Two hosts serve this bundle: Vercel (canonical, at the domain root) and
-       the GitHub Pages project site at
-       https://grey21onyx.github.io/LagiButuh-web/ . Relative URLs resolve against
-       the document URL on both, and once https://lagibutuh.thedev.id
-       answers, visitors are forwarded there with path, query and hash kept so
-       deep links survive. While the thedev.id record does not exist yet the
-       Pages copy keeps working instead of sending people to a dead host. */
+    /* Same contract as index.html: the legacy GitHub Pages project site
+       forwards to the canonical host once it answers. Unknown URLs under the
+       Pages project reach this document, so the path is kept. */
     (function () {
       if (!/(^|\.)github\.io$/i.test(location.hostname)) return;
       var origin = "https://lagibutuh.thedev.id";
@@ -25,58 +25,39 @@
         .catch(function () {});
     })();
   </script>
-  <link rel="canonical" href="https://lagibutuh.thedev.id/">
-
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-
-  <title>LagiButuh — Platform Layanan Lokal untuk Kebutuhanmu</title>
-  <meta name="description" content="LagiButuh menghubungkan pelanggan dengan penyedia layanan lokal di Batam — laundry dan depot air — dengan pemesanan, penjemputan, pelacakan real-time, dan konfirmasi antar dalam satu aplikasi.">
-  <meta name="application-name" content="LagiButuh">
-  <meta name="theme-color" content="#1B60D5">
-  <meta name="theme-color" content="#11358B" media="(prefers-color-scheme: dark)">
-
-  <!-- Link previews -->
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="LagiButuh">
-  <meta property="og:title" content="LagiButuh — Platform Layanan Lokal untuk Kebutuhanmu">
-  <meta property="og:description" content="Pesan laundry dan depot air dari penyedia lokal di Batam, lacak penjemputan dan antar secara real-time.">
-  <meta property="og:locale" content="id_ID">
-
-  <!-- iOS home-screen app -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="LagiButuh">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-
-  <!-- Icons and PWA manifest -->
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/Icon-192.png">
-  <link rel="manifest" href="manifest.json">
 
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      background-color: #96DE21;
+    html, body { height: 100%; margin: 0; background-color: #96DE21; }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: #11358B;
+      text-align: center;
+      padding: 24px;
+    }
+    img { width: 84px; height: 84px; border-radius: 22px; box-shadow: 0 10px 30px rgba(17, 53, 139, 0.18); }
+    h1 { margin: 0; font-size: 20px; }
+    p { margin: 0; font-size: 15px; max-width: 32rem; line-height: 1.5; }
+    a {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: #11358B;
+      color: #ffffff;
+      font-weight: 600;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <noscript>
-    <p style="font-family: system-ui, sans-serif; padding: 24px; color: #11358B;">
-      LagiButuh membutuhkan JavaScript. Aktifkan JavaScript di peramban Anda,
-      lalu muat ulang halaman ini.
-    </p>
-  </noscript>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
-  <script src="flutter_bootstrap.js" async></script>
+  <img src="icons/Icon-192.png" alt="LagiButuh">
+  <h1>Halaman tidak ditemukan</h1>
+  <p>Tautan ini tidak ada di LagiButuh. Kembali ke halaman utama untuk memesan laundry atau depot air.</p>
+  <a href="/">Buka LagiButuh</a>
 </body>
 </html>

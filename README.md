@@ -31,13 +31,18 @@ with the path, query and hash preserved (the app uses hash routing, so deep
 links survive). While the record does not exist yet, the Pages copy keeps
 serving the app instead of redirecting to a dead host.
 
-## Rebuilding the bundle
+## Release pipeline
 
-The Flutter source lives in the `LagiButuh` app repository. Rebuild with
+The Flutter source lives in the `nossilleen/LagiButuh` repository. Its
+`Deploy web release` workflow builds the bundle and publishes it here:
 
-```sh
-flutter build web --release --base-href=/
-```
+1. `flutter build web --release --wasm --dart-define-from-file=env/ci.json`
+2. replace everything in this repository except `.git`, `.github`,
+   `README.md`, `vercel.json` and `.nojekyll` with `build/web/`
+3. commit and push to `main`, which is the commit Vercel deploys
 
-and copy `build/web/` over this repository's root (then restore `404.html`,
-`delete-account/`, `vercel.json` and this README).
+The workflow needs `WEB_DEPLOY_TOKEN` (a fine-grained token with write access
+to this repository) plus the Supabase build defines as repository secrets.
+
+To publish by hand, run the same build in the app repository and copy
+`build/web/` over this repository's root, keeping the files listed above.

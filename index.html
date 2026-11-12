@@ -2,18 +2,19 @@
 <html lang="id">
 <head>
   <!--
-    Served from the domain root on Vercel and from the /LagiButuh-web/
-    project sub-path on GitHub Pages. Relative URLs resolve against the
-    document URL, so no <base href> is pinned here.
+    This bundle is served from the domain root on Vercel and from the
+    /LagiButuh-web/ project sub-path on GitHub Pages. Relative URLs resolve
+    against the document URL on both, so no <base href> is pinned here: a
+    pinned base can only ever be right for one of the two hosts.
   -->
   <script>
-    /* Two hosts serve this bundle: Vercel (canonical, at the domain root) and
-       the GitHub Pages project site at
-       https://grey21onyx.github.io/LagiButuh-web/ . Relative URLs resolve against
-       the document URL on both, and once https://lagibutuh.thedev.id
-       answers, visitors are forwarded there with path, query and hash kept so
-       deep links survive. While the thedev.id record does not exist yet the
-       Pages copy keeps working instead of sending people to a dead host. */
+    /* The canonical host is https://lagibutuh.thedev.id (Vercel). The legacy
+       GitHub Pages project site at
+       https://grey21onyx.github.io/LagiButuh-web/ probes it and forwards
+       visitors there, keeping path, query and hash so deep links survive.
+       While the thedev.id record does not exist yet the probe fails and the
+       Pages copy keeps serving the app instead of sending people to a host
+       that does not answer. */
     (function () {
       if (!/(^|\.)github\.io$/i.test(location.hostname)) return;
       var origin = "https://lagibutuh.thedev.id";
@@ -27,6 +28,7 @@
   </script>
   <link rel="canonical" href="https://lagibutuh.thedev.id/">
 
+  <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
 
   <title>LagiButuh — Platform Layanan Lokal untuk Kebutuhanmu</title>
