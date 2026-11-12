@@ -12,10 +12,13 @@
        GitHub Pages project site at
        https://grey21onyx.github.io/LagiButuh-web/ probes it and forwards
        visitors there, keeping path, query and hash so deep links survive.
-       The probe still guards the redirect: if the canonical host ever stops
-       answering, the Pages copy keeps serving the app instead of sending
-       people to a host that is down. Auth works on both hosts, so a visitor
-       who stays on Pages is not stranded. */
+
+       The probe reads /version.json over CORS (vercel.json sends
+       Access-Control-Allow-Origin for it) and only forwards on a 2xx carrying
+       this app's name, so an outage page, a 5xx or a parked host leaves the
+       visitor on Pages instead of sending them to something that cannot serve
+       the app. A failed probe is not fatal: the Pages build is complete and
+       its host is allow-listed for auth, so it signs people in by itself. */
     (function () {
       if (!/(^|\.)github\.io$/i.test(location.hostname)) return;
       /* Never forward an auth callback. GoTrue returns `?code=` (or a
@@ -27,8 +30,12 @@
           /(access_token|refresh_token|error)=/.test(location.hash)) return;
       var origin = "https://lagibutuh.vercel.app";
       var path = location.pathname.replace(new RegExp("^/LagiButuh-web/?"), "");
-      fetch(origin + "/version.json", { mode: "no-cors", cache: "no-store" })
-        .then(function () {
+      fetch(origin + "/version.json", { mode: "cors", cache: "no-store" })
+        .then(function (response) {
+          return response.ok ? response.json() : null;
+        })
+        .then(function (build) {
+          if (!build || build.app_name !== "lagibutuh") return;
           location.replace(origin + "/" + path + location.search + location.hash);
         })
         .catch(function () {});

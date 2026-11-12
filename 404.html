@@ -12,8 +12,9 @@
 
   <script>
     /* Same contract as index.html: the legacy GitHub Pages project site
-       forwards to the canonical host once it answers. Unknown URLs under the
-       Pages project reach this document, so the path is kept. */
+       forwards to the canonical host only when its /version.json answers a
+       2xx naming this app, so an outage keeps the visitor on Pages. Unknown
+       URLs under the Pages project reach this document, so the path is kept. */
     (function () {
       if (!/(^|\.)github\.io$/i.test(location.hostname)) return;
       /* Same auth-callback guard as index.html: a `?code=` exchange needs the
@@ -22,8 +23,12 @@
           /(access_token|refresh_token|error)=/.test(location.hash)) return;
       var origin = "https://lagibutuh.vercel.app";
       var path = location.pathname.replace(new RegExp("^/LagiButuh-web/?"), "");
-      fetch(origin + "/version.json", { mode: "no-cors", cache: "no-store" })
-        .then(function () {
+      fetch(origin + "/version.json", { mode: "cors", cache: "no-store" })
+        .then(function (response) {
+          return response.ok ? response.json() : null;
+        })
+        .then(function (build) {
+          if (!build || build.app_name !== "lagibutuh") return;
           location.replace(origin + "/" + path + location.search + location.hash);
         })
         .catch(function () {});
