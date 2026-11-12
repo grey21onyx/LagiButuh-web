@@ -15,19 +15,25 @@
     * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
   -->
   <base href="/">
-
-  <meta charset="UTF-8">
-  <!-- Legacy GitHub Pages URL -> canonical production origin on Vercel.
-       This same build is served at
-       https://grey21onyx.github.io/LagiButuh-web/ , so visitors landing on
-       github.io are forwarded to the Vercel domain. Path, query and hash are
-       preserved so deep links keep working. -->
   <script>
+    /* Two hosts serve this bundle: Vercel (canonical, at the domain root) and
+       the GitHub Pages project site at
+       https://grey21onyx.github.io/LagiButuh-web/ . On Pages the legacy
+       sub-path becomes the base href, and once https://lagibutuh.thedev.id
+       answers, visitors are forwarded there with path, query and hash kept so
+       deep links survive. While the thedev.id record does not exist yet the
+       Pages copy keeps working instead of sending people to a dead host. */
     (function () {
-      if (/(^|\.)github\.io$/i.test(location.hostname)) {
-        var path = location.pathname.replace(new RegExp("^/LagiButuh-web/?"), "");
-        location.replace("https://lagibutuh.thedev.id/" + path + location.search + location.hash);
-      }
+      if (!/(^|\.)github\.io$/i.test(location.hostname)) return;
+      var base = document.querySelector("base");
+      if (base) base.setAttribute("href", "/LagiButuh-web/");
+      var origin = "https://lagibutuh.thedev.id";
+      var path = location.pathname.replace(new RegExp("^/LagiButuh-web/?"), "");
+      fetch(origin + "/version.json", { mode: "no-cors", cache: "no-store" })
+        .then(function () {
+          location.replace(origin + "/" + path + location.search + location.hash);
+        })
+        .catch(function () {});
     })();
   </script>
   <link rel="canonical" href="https://lagibutuh.thedev.id/">
