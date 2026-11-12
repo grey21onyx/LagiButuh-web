@@ -7,9 +7,14 @@ static bundle from the repository root.
 
 | Host | URL | Notes |
 | --- | --- | --- |
-| Vercel (canonical) | https://lagibutuh.thedev.id | Project `lagibutuh`, deploys `main` on every push |
-| Vercel (default) | https://lagibutuh.vercel.app | Same deployment, Vercel's own domain |
-| GitHub Pages (legacy) | https://grey21onyx.github.io/LagiButuh-web/ | Kept alive, forwards to the canonical domain |
+| Vercel (canonical) | https://lagibutuh.vercel.app | Project `lagibutuh`, deploys `main` on every push; the Supabase `site_url` |
+| GitHub Pages (legacy) | https://grey21onyx.github.io/LagiButuh-web/ | Kept alive, forwards to the canonical host when it answers |
+
+`https://lagibutuh.thedev.id` is the intended branded domain but has no DNS
+record yet, so nothing points at it: the shell's probe would fail and the Pages
+copy would keep serving. Once the record exists, the redirect target is the one
+`origin` constant in the emitted `index.html`/`404.html`, and the domain has to
+be added to the Supabase redirect allow list before auth links may return there.
 
 `vercel.json` sets cache headers for the entrypoints (`index.html`, the service
 workers, `main.dart*`, `version.json`); everything else is served as static
