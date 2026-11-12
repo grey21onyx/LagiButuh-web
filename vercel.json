@@ -1,33 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    {
-      "source": "/probe-b.wasm",
-      "has": [
-        {
-          "type": "header",
-          "key": "Accept-Encoding",
-          "value": ".*br.*"
-        }
-      ],
-      "destination": "/probe-b.wasm.br"
-    },
-    {
-      "source": "/probe-b.wasm",
-      "destination": "/probe-b.wasm.plain"
-    },
-    {
-      "source": "/probe-c.wasm",
-      "has": [
-        {
-          "type": "header",
-          "key": "Accept-Encoding",
-          "value": ".*br.*"
-        }
-      ],
-      "destination": "/probe-b.wasm.br"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -201,100 +173,11 @@
           "value": "public, max-age=86400, stale-while-revalidate=604800"
         }
       ]
-    },
-    {
-      "source": "/main.dart.wasm.br",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/wasm"
-        },
-        {
-          "key": "Content-Encoding",
-          "value": "br"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/canvaskit/skwasm.wasm.br",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/wasm"
-        },
-        {
-          "key": "Content-Encoding",
-          "value": "br"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=604800, stale-while-revalidate=604800"
-        }
-      ]
-    },
-    {
-      "source": "/main.dart.js.br",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/javascript; charset=utf-8"
-        },
-        {
-          "key": "Content-Encoding",
-          "value": "br"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/probe-c.wasm",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/wasm"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "no-store"
-        }
-      ]
-    },
-    {
-      "source": "/probe-b.wasm",
-      "has": [
-        {
-          "type": "header",
-          "key": "Accept-Encoding",
-          "value": ".*br.*"
-        }
-      ],
-      "headers": [
-        {
-          "key": "Content-Encoding",
-          "value": "br"
-        }
-      ]
-    },
-    {
-      "source": "/probe-b.wasm",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/wasm"
-        }
-      ]
     }
   ],
   "routes": [
     {
-      "src": "/probe-c.wasm",
+      "src": "/main.dart.wasm",
       "has": [
         {
           "type": "header",
@@ -302,10 +185,40 @@
           "value": ".*br.*"
         }
       ],
-      "dest": "/probe-b.wasm.br",
+      "dest": "/main.dart.wasm.br",
       "headers": {
-        "Content-Encoding": "br",
-        "Content-Type": "application/wasm"
+        "Content-Type": "application/wasm",
+        "Content-Encoding": "br"
+      }
+    },
+    {
+      "src": "/canvaskit/skwasm.wasm",
+      "has": [
+        {
+          "type": "header",
+          "key": "Accept-Encoding",
+          "value": ".*br.*"
+        }
+      ],
+      "dest": "/canvaskit/skwasm.wasm.br",
+      "headers": {
+        "Content-Type": "application/wasm",
+        "Content-Encoding": "br"
+      }
+    },
+    {
+      "src": "/main.dart.js",
+      "has": [
+        {
+          "type": "header",
+          "key": "Accept-Encoding",
+          "value": ".*br.*"
+        }
+      ],
+      "dest": "/main.dart.js.br",
+      "headers": {
+        "Content-Type": "text/javascript; charset=utf-8",
+        "Content-Encoding": "br"
       }
     }
   ]
