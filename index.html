@@ -2,23 +2,27 @@
 <html lang="id">
 <head>
   <!--
-    This bundle is served from the domain root on Vercel and from the
-    /LagiButuh-web/ project sub-path on GitHub Pages. Relative URLs resolve
-    against the document URL on both, so no <base href> is pinned here: a
-    pinned base can only ever be right for one of the two hosts.
+    This bundle is served from the domain root on Vercel and Cloudflare Pages,
+    and from the /LagiButuh-web/ project sub-path on GitHub Pages. Relative
+    URLs resolve against the document URL on each, so no <base href> is pinned
+    here: a pinned base can only ever be right for one of the hosts.
   -->
   <script>
-    /* The canonical host is https://lagibutuh.vercel.app (Vercel). The legacy
-       GitHub Pages project site at
+    /* The primary host is https://lagibutuh.pages.dev (Cloudflare Pages).
+       The legacy GitHub Pages project site at
        https://grey21onyx.github.io/LagiButuh-web/ probes it and forwards
        visitors there, keeping path, query and hash so deep links survive.
 
-       The probe reads /version.json over CORS (vercel.json sends
-       Access-Control-Allow-Origin for it) and only forwards on a 2xx carrying
-       this app's name, so an outage page, a 5xx or a parked host leaves the
-       visitor on Pages instead of sending them to something that cannot serve
-       the app. A failed probe is not fatal: the Pages build is complete and
-       its host is allow-listed for auth, so it signs people in by itself. */
+       If Cloudflare does not answer with this app's /version.json, the probe
+       falls back to the secondary Vercel deployment at
+       https://lagibutuh.vercel.app. Only when neither host is healthy does
+       the visitor stay on Pages, which is complete and signs people in by
+       itself.
+
+       Each probe reads /version.json over CORS and only forwards on a 2xx
+       carrying this app's name, so an outage page, a 5xx or a parked host is
+       a failure. A short abort timer stops a hanging host from delaying the
+       next probe. */
     (function () {
       if (!/(^|\.)github\.io$/i.test(location.hostname)) return;
       /* Never forward an auth callback. GoTrue returns `?code=` (or a
@@ -28,17 +32,42 @@
          signs in, and the next in-app navigation is on the canonical host. */
       if (/[?&](code|error)=/.test(location.search) ||
           /(access_token|refresh_token|error)=/.test(location.hash)) return;
-      var origin = "https://lagibutuh.vercel.app";
+
+      var hosts = ["https://lagibutuh.pages.dev", "https://lagibutuh.vercel.app"];
       var path = location.pathname.replace(new RegExp("^/LagiButuh-web/?"), "");
-      fetch(origin + "/version.json", { mode: "cors", cache: "no-store" })
-        .then(function (response) {
-          return response.ok ? response.json() : null;
+
+      function probe(host, next) {
+        var controller =
+          typeof AbortController !== "undefined" ? new AbortController() : null;
+        var timer = setTimeout(function () {
+          if (controller) controller.abort();
+        }, 3000);
+
+        fetch(host + "/version.json", {
+          mode: "cors",
+          cache: "no-store",
+          signal: controller ? controller.signal : undefined,
         })
-        .then(function (build) {
-          if (!build || build.app_name !== "lagibutuh") return;
-          location.replace(origin + "/" + path + location.search + location.hash);
-        })
-        .catch(function () {});
+          .then(function (response) {
+            clearTimeout(timer);
+            return response.ok ? response.json() : null;
+          })
+          .then(function (build) {
+            if (build && build.app_name === "lagibutuh") {
+              location.replace(host + "/" + path + location.search + location.hash);
+              return;
+            }
+            next();
+          })
+          .catch(function () {
+            clearTimeout(timer);
+            next();
+          });
+      }
+
+      probe(hosts[0], function () {
+        probe(hosts[1], function () {});
+      });
     })();
   </script>
   <!-- Start the two wasm fetches while the bootstrap is still parsing: the
@@ -48,7 +77,7 @@
   <link rel="preload" href="main.dart.wasm" as="fetch" type="application/wasm" crossorigin="anonymous">
   <link rel="preload" href="canvaskit/skwasm.wasm" as="fetch" type="application/wasm" crossorigin="anonymous">
   <link rel="modulepreload" href="main.dart.mjs">
-  <link rel="canonical" href="https://lagibutuh.vercel.app/">
+  <link rel="canonical" href="https://lagibutuh.pages.dev/">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">

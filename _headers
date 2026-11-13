@@ -1,0 +1,75 @@
+# Response headers for the primary deployment (lagibutuh.pages.dev).
+# Mirrors the vercel.json header block: security policy, cache lifetimes and
+# the COOP/COEP pair that lets Skwasm use its multi-threaded renderer.
+# Compression and MIME types are handled by Cloudflare itself.
+#
+# One deliberate difference from vercel.json: the CSP also allows Cloudflare's
+# Web Analytics beacon, which Cloudflare injects into HTML responses served by
+# this project (Workers & Pages -> lagibutuh -> Metrics -> Web Analytics). The
+# beacon script comes from static.cloudflareinsights.com and reports to
+# cloudflareinsights.com (a beacon served from the same origin as the page is
+# already covered by 'self'). Vercel is not proxied by Cloudflare, so its copy
+# of the policy stays narrower.
+#
+# Cloudflare consumes this file at deploy time; it is not served as an asset.
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Vary: Accept-Encoding
+  Permissions-Policy: usb=(), serial=(), midi=(), payment=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://accounts.google.com https://www.gstatic.com https://www.google.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' blob: data: https: wss: https://cloudflareinsights.com; frame-src https://accounts.google.com https://www.google.com; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+
+/
+  Cache-Control: public, max-age=0, must-revalidate
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+/404.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/flutter_service_worker.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/version.json
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=0, must-revalidate
+
+/main.dart.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/main.dart.wasm
+  Cache-Control: public, max-age=0, must-revalidate
+
+/main.dart.mjs
+  Cache-Control: public, max-age=0, must-revalidate
+
+/flutter.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/flutter_bootstrap.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/manifest.json
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/canvaskit/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=604800
+
+/assets/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+/icons/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/favicon.png
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

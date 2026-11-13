@@ -11,27 +11,66 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
 
   <script>
-    /* Same contract as index.html: the legacy GitHub Pages project site
-       forwards to the canonical host only when its /version.json answers a
-       2xx naming this app, so an outage keeps the visitor on Pages. Unknown
-       URLs under the Pages project reach this document, so the path is kept. */
+    /* The primary host is https://lagibutuh.pages.dev (Cloudflare Pages).
+       The legacy GitHub Pages project site at
+       https://grey21onyx.github.io/LagiButuh-web/ probes it and forwards
+       visitors there, keeping path, query and hash so deep links survive.
+
+       If Cloudflare does not answer with this app's /version.json, the probe
+       falls back to the secondary Vercel deployment at
+       https://lagibutuh.vercel.app. Only when neither host is healthy does
+       the visitor stay on Pages, which is complete and signs people in by
+       itself.
+
+       Each probe reads /version.json over CORS and only forwards on a 2xx
+       carrying this app's name, so an outage page, a 5xx or a parked host is
+       a failure. A short abort timer stops a hanging host from delaying the
+       next probe. */
     (function () {
       if (!/(^|\.)github\.io$/i.test(location.hostname)) return;
-      /* Same auth-callback guard as index.html: a `?code=` exchange needs the
-         PKCE verifier stored on the origin that started it. */
+      /* Never forward an auth callback. GoTrue returns `?code=` (or a
+         `#access_token=` fragment) that is exchanged against a PKCE verifier
+         kept in *this* origin's storage; moving the page to another origin
+         would lose it and the exchange would fail. The app boots here instead,
+         signs in, and the next in-app navigation is on the canonical host. */
       if (/[?&](code|error)=/.test(location.search) ||
           /(access_token|refresh_token|error)=/.test(location.hash)) return;
-      var origin = "https://lagibutuh.vercel.app";
+
+      var hosts = ["https://lagibutuh.pages.dev", "https://lagibutuh.vercel.app"];
       var path = location.pathname.replace(new RegExp("^/LagiButuh-web/?"), "");
-      fetch(origin + "/version.json", { mode: "cors", cache: "no-store" })
-        .then(function (response) {
-          return response.ok ? response.json() : null;
+
+      function probe(host, next) {
+        var controller =
+          typeof AbortController !== "undefined" ? new AbortController() : null;
+        var timer = setTimeout(function () {
+          if (controller) controller.abort();
+        }, 3000);
+
+        fetch(host + "/version.json", {
+          mode: "cors",
+          cache: "no-store",
+          signal: controller ? controller.signal : undefined,
         })
-        .then(function (build) {
-          if (!build || build.app_name !== "lagibutuh") return;
-          location.replace(origin + "/" + path + location.search + location.hash);
-        })
-        .catch(function () {});
+          .then(function (response) {
+            clearTimeout(timer);
+            return response.ok ? response.json() : null;
+          })
+          .then(function (build) {
+            if (build && build.app_name === "lagibutuh") {
+              location.replace(host + "/" + path + location.search + location.hash);
+              return;
+            }
+            next();
+          })
+          .catch(function () {
+            clearTimeout(timer);
+            next();
+          });
+      }
+
+      probe(hosts[0], function () {
+        probe(hosts[1], function () {});
+      });
     })();
   </script>
 
