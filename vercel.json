@@ -2,6 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
+      "source": "/",
+      "has": [{ "type": "host", "value": "lagibutuh\\.vercel\\.app" }],
+      "destination": "https://lagibutuh.pages.dev/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "lagibutuh\\.vercel\\.app" }],
       "destination": "https://lagibutuh.pages.dev/:path*",
