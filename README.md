@@ -7,7 +7,8 @@ static bundle from the repository root.
 
 | Host | URL | Notes |
 | --- | --- | --- |
-| Vercel (canonical) | https://lagibutuh.vercel.app | Project `lagibutuh`, deploys `main` on every push; the Supabase `site_url` |
+| Cloudflare Pages (canonical) | https://lagibutuh.pages.dev | Deploys `main` on every push; the host users are meant to reach |
+| Vercel (alias) | https://lagibutuh.vercel.app | Project `lagibutuh`, deploys `main` on every push, then answers every request with a 308 to the canonical host |
 | GitHub Pages (legacy) | https://grey21onyx.github.io/LagiButuh-web/ | Kept alive, forwards to the canonical host when it answers |
 
 `https://lagibutuh.thedev.id` is the intended branded domain but has no DNS
@@ -16,9 +17,16 @@ copy would keep serving. Once the record exists, the redirect target is the one
 `origin` constant in the emitted `index.html`/`404.html`, and the domain has to
 be added to the Supabase redirect allow list before auth links may return there.
 
-`vercel.json` sets cache headers for the entrypoints (`index.html`, the service
-workers, `main.dart*`, `version.json`); everything else is served as static
-files. No build step runs on Vercel — the checked-in bundle is the release.
+`vercel.json` sends the `lagibutuh.vercel.app` host to Cloudflare Pages: a single
+`redirects` rule, scoped by `has: host`, replies 308 with the path preserved
+and the query string passed through, so bookmarks, Supabase auth links and deep
+links keep working after the move.
+
+Nothing is served from that host any more, but the cache headers for the
+entrypoints (`index.html`, the service workers, `main.dart*`, `version.json`) and
+the `routes` below are kept for the other hostnames on the same project — the
+branded domain and preview deployments — which still serve the bundle. No build
+step runs on Vercel; the checked-in bundle is the release.
 
 `/version.json` also carries `Access-Control-Allow-Origin: *`. That is what the
 Pages shell's health probe reads: it forwards to the canonical host only when
@@ -90,7 +98,8 @@ The Flutter source lives in the `nossilleen/LagiButuh` repository. Its
    build id) and `tool/precompress_web.mjs` (the `.br` siblings above)
 2. replace everything in this repository except `.git`, `.github`,
    `README.md`, `vercel.json` and `.nojekyll` with `build/web/`
-3. commit and push to `main`, which is the commit Vercel deploys
+3. commit and push to `main`, which is the commit both hosts deploy: Cloudflare
+   Pages serves it, Vercel answers with the 308 above
 
 The workflow needs `WEB_DEPLOY_KEY` (the private half of a deploy key with
 write access to this repository) plus `BUILD_ENV_JSON` (the contents of
