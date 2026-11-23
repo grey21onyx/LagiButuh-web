@@ -10,7 +10,7 @@
 'use strict';
 
 const STRATEGY = 'v2';
-const BUILD_ID = '43ab752d5e';
+const BUILD_ID = '97637463ee';
 const VERSION = `${STRATEGY}-${BUILD_ID}`;
 const SHELL_CACHE = `lagibutuh-shell-${VERSION}`;
 const RUNTIME_CACHE = `lagibutuh-runtime-${VERSION}`;
