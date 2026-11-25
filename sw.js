@@ -9,8 +9,9 @@
 // Pages) without hard-coding it.
 'use strict';
 
-const STRATEGY = 'v2';
-const BUILD_ID = '97637463ee';
+// v3: entrypoints carry a content hash (`main.dart.<hash>.wasm`).
+const STRATEGY = 'v3';
+const BUILD_ID = 'c5e8ce2cca';
 const VERSION = `${STRATEGY}-${BUILD_ID}`;
 const SHELL_CACHE = `lagibutuh-shell-${VERSION}`;
 const RUNTIME_CACHE = `lagibutuh-runtime-${VERSION}`;
@@ -49,7 +50,7 @@ const IMMUTABLE_ASSET = /\.(png|jpe?g|gif|svg|webp|ico|woff2?|ttf|otf)$/i;
 // warm boot as slow as a cold one. `.symbols` files are build tooling, never
 // fetched by the app, and must not be pulled into the cache.
 const ENGINE_ASSET =
-  /(?:^|\/)(?:flutter_bootstrap\.js|flutter\.js|version\.json|main\.dart\.(?:js|wasm|mjs)|canvaskit\/[^/]+)$/;
+  /(?:^|\/)(?:flutter_bootstrap\.js|flutter\.js|version\.json|main\.dart\.(?:[0-9a-f]{8}\.)?(?:js|wasm|mjs)|canvaskit\/[^/]+)$/;
 const SYMBOLS_ASSET = /\.symbols$/;
 
 self.addEventListener('install', (event) => {

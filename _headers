@@ -53,6 +53,20 @@
 /main.dart.mjs
   Cache-Control: public, max-age=0, must-revalidate
 
+# --web-content-hash build: the name carries the content hash, so the bytes at
+# that URL never change. The unhashed rules above stay for an older build.
+/main.dart.*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/main.dart.*.wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+/main.dart.*.mjs
+  Cache-Control: public, max-age=31536000, immutable
+
+/precache_manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
+
 /flutter.js
   Cache-Control: public, max-age=0, must-revalidate
 
@@ -62,11 +76,14 @@
 /manifest.json
   Cache-Control: public, max-age=3600, stale-while-revalidate=86400
 
+# canvaskit files keep fixed names (--no-web-resources-cdn), so they are not
+# immutable; the service worker caches them per build and revalidation is a 304.
 /canvaskit/*
-  Cache-Control: public, max-age=604800, stale-while-revalidate=604800
+  Cache-Control: public, max-age=0, must-revalidate
 
+# Every asset carries its content hash in the filename in this build recipe.
 /assets/*
-  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  Cache-Control: public, max-age=31536000, immutable
 
 /icons/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800

@@ -1,0 +1,329 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "url": "404.html",
+      "hash": "992fe81e",
+      "size": 4105,
+      "urlHashed": false
+    },
+    {
+      "url": "_headers",
+      "hash": "1ab2f2b0",
+      "size": 3633,
+      "urlHashed": false
+    },
+    {
+      "url": "assets/AssetManifest.62d70950.bin",
+      "hash": "62d70950",
+      "size": 1016,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/AssetManifest.bin.94533135.json",
+      "hash": "94533135",
+      "size": 1358,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/FontManifest.41f38bb5.json",
+      "hash": "41f38bb5",
+      "size": 591,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/NOTICES.b0cc8864",
+      "hash": "b0cc8864",
+      "size": 1533823,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/assets/fonts/PlusJakartaSans-Bold.2675eab9.ttf",
+      "hash": "2675eab9",
+      "size": 21944,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/assets/fonts/PlusJakartaSans-ExtraBold.ed707ba9.ttf",
+      "hash": "ed707ba9",
+      "size": 21940,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/assets/fonts/PlusJakartaSans-Medium.16c9d1ce.ttf",
+      "hash": "16c9d1ce",
+      "size": 21968,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/assets/fonts/PlusJakartaSans-Regular.60c0cf46.ttf",
+      "hash": "60c0cf46",
+      "size": 21984,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/assets/fonts/PlusJakartaSans-SemiBold.3696e8ce.ttf",
+      "hash": "3696e8ce",
+      "size": 21972,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/assets/icons/brand_logo.c54e20a8.svg",
+      "hash": "c54e20a8",
+      "size": 12383,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/fonts/MaterialIcons-Regular.78384fac.otf",
+      "hash": "78384fac",
+      "size": 41888,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/fonts/fallback/Roboto-Regular.79e85140.ttf",
+      "hash": "79e85140",
+      "size": 171676,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/packages/flutter_local_notifications_web/web/notifications_service_worker.566f47dc.js",
+      "hash": "566f47dc",
+      "size": 3407,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/packages/flutter_map/lib/assets/flutter_map_logo.6051ae42.png",
+      "hash": "6051ae42",
+      "size": 2424,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/packages/material_ui/shaders/ink_sparkle.2dca5ab9.frag",
+      "hash": "2dca5ab9",
+      "size": 8890,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/shaders/ink_sparkle.2dca5ab9.frag",
+      "hash": "2dca5ab9",
+      "size": 8890,
+      "urlHashed": true
+    },
+    {
+      "url": "assets/shaders/stretch_effect.ab412f07.frag",
+      "hash": "ab412f07",
+      "size": 6737,
+      "urlHashed": true
+    },
+    {
+      "url": "canvaskit/canvaskit.js",
+      "hash": "4719b51c",
+      "size": 87031,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/canvaskit.wasm",
+      "hash": "f3c2ff16",
+      "size": 7315452,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/chromium/canvaskit.js",
+      "hash": "b836e30a",
+      "size": 86270,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/chromium/canvaskit.wasm",
+      "hash": "e269e717",
+      "size": 5463539,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/skwasm.js",
+      "hash": "02e82120",
+      "size": 63987,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/skwasm.wasm",
+      "hash": "eee8d996",
+      "size": 3612593,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/skwasm.wasm.br",
+      "hash": "8bcdba82",
+      "size": 1216263,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/skwasm_heavy.js",
+      "hash": "545e678b",
+      "size": 64100,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/skwasm_heavy.wasm",
+      "hash": "7f038b46",
+      "size": 5232730,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/webparagraph/canvaskit.js",
+      "hash": "6a95972e",
+      "size": 76114,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/webparagraph/canvaskit.wasm",
+      "hash": "01f0337c",
+      "size": 3753480,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/wimp.js",
+      "hash": "7a8fd95f",
+      "size": 59634,
+      "urlHashed": false
+    },
+    {
+      "url": "canvaskit/wimp.wasm",
+      "hash": "01d9aac3",
+      "size": 3604775,
+      "urlHashed": false
+    },
+    {
+      "url": "delete-account/config.example.json",
+      "hash": "0b1075d3",
+      "size": 113,
+      "urlHashed": false
+    },
+    {
+      "url": "delete-account/index.html",
+      "hash": "0e1b03f4",
+      "size": 8637,
+      "urlHashed": false
+    },
+    {
+      "url": "favicon.png",
+      "hash": "9d251971",
+      "size": 1156,
+      "urlHashed": false
+    },
+    {
+      "url": "flutter.js",
+      "hash": "d2e7708f",
+      "size": 13169,
+      "urlHashed": false
+    },
+    {
+      "url": "flutter_bootstrap.js",
+      "hash": "86e666e0",
+      "size": 25445,
+      "urlHashed": false
+    },
+    {
+      "url": "flutter_bootstrap_canvaskit.js",
+      "hash": "b1dde61f",
+      "size": 22843,
+      "urlHashed": false
+    },
+    {
+      "url": "icons/Icon-192.png",
+      "hash": "42b2b30e",
+      "size": 6755,
+      "urlHashed": false
+    },
+    {
+      "url": "icons/Icon-512.png",
+      "hash": "dda6a101",
+      "size": 24368,
+      "urlHashed": false
+    },
+    {
+      "url": "icons/Icon-maskable-192.png",
+      "hash": "a92b7b79",
+      "size": 5352,
+      "urlHashed": false
+    },
+    {
+      "url": "icons/Icon-maskable-512.png",
+      "hash": "2ce34d17",
+      "size": 17510,
+      "urlHashed": false
+    },
+    {
+      "url": "icons/apple-touch-icon.png",
+      "hash": "cc03fee2",
+      "size": 6246,
+      "urlHashed": false
+    },
+    {
+      "url": "icons/badge-96.png",
+      "hash": "cecc059a",
+      "size": 905,
+      "urlHashed": false
+    },
+    {
+      "url": "index.html",
+      "hash": "76862e2b",
+      "size": 33812,
+      "urlHashed": false
+    },
+    {
+      "url": "main.dart.14530737.wasm",
+      "hash": "14530737",
+      "size": 4804555,
+      "urlHashed": true
+    },
+    {
+      "url": "main.dart.9c672d98.wasm.br",
+      "hash": "a26e447c",
+      "size": 1328629,
+      "urlHashed": false
+    },
+    {
+      "url": "main.dart.c708d230.js",
+      "hash": "c708d230",
+      "size": 6025871,
+      "urlHashed": true
+    },
+    {
+      "url": "main.dart.c708d230.js.br",
+      "hash": "9eb7d707",
+      "size": 1260342,
+      "urlHashed": false
+    },
+    {
+      "url": "main.dart.ed31b2ab.mjs",
+      "hash": "ed31b2ab",
+      "size": 41039,
+      "urlHashed": true
+    },
+    {
+      "url": "manifest.json",
+      "hash": "db81629d",
+      "size": 1103,
+      "urlHashed": false
+    },
+    {
+      "url": "preview-canvaskit.html",
+      "hash": "727ff2a8",
+      "size": 30796,
+      "urlHashed": false
+    },
+    {
+      "url": "sw.js",
+      "hash": "a52dae36",
+      "size": 8262,
+      "urlHashed": false
+    },
+    {
+      "url": "version.json",
+      "hash": "143f8d90",
+      "size": 88,
+      "urlHashed": false
+    }
+  ]
+}
